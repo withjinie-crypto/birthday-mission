@@ -26,10 +26,10 @@ body {
 }
 
 input {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     text-align: center;
-    font-size: 18px;
+    font-size: 16px;
     margin: 2px;
 }
 
@@ -42,14 +42,12 @@ input {
     top: 1px;
     left: 3px;
     font-size: 10px;
-    color: #555;
 }
 
 .clue {
     text-align: left;
-    width: 320px;
+    width: 330px;
     margin: 20px auto;
-    font-size: 14px;
 }
 </style>
 </head>
@@ -62,15 +60,15 @@ input {
 <div id="grid" class="grid"></div>
 
 <div class="clue">
-<b>📌 가로/세로 문제</b><br>
+<b>📌 문제</b><br>
 ① 우리의 1일<br>
 ② 우리의 베이비<br>
 ③ 첫 해외여행지<br>
-④ 체코에서 딩동이의 최고 음식<br>
+④ 체코에서 딩동의 최고 음식<br>
 ⑤ 내가 밤마다 하는 것<br>
-⑥ 딩동의 여름 최애<br>
-⑦ 최근 애기가 울면서 먹은 간식<br>
-⑧ 딩동 특화 문제-해협입니다
+⑥ 딘동의 여름 최애<br>
+⑦ 애기가 최근 울면서 먹은 간식<br>
+⑧ 딩동 특화 문제-해협이다
 </div>
 
 <button onclick="check()">정답 확인</button>
@@ -78,98 +76,66 @@ input {
 
 <script>
 
-// 퍼즐 구조 (#은 빈칸)
-const layout = [
-"#########",
-"#1111111#",
-"###2#####",
-"###2#####",
-"###23333#",
-"###4#####",
-"5555555##",
-"###6#####",
-"###77777#",
-"#########"
+// 정답 리스트
+const words = [
+"이천십구년일월오일", //1 (11글자)
+"호두",              //2 (2글자)
+"일본",              //3
+"코젤흑맥주",        //4
+"코골기",            //5
+"생맥주",            //6
+"돼지귀",            //7
+"호르무즈해협"       //8
 ];
 
-// 정답
-const answers = {
-    "1": "이천십구년일월오일",
-    "2": "호두",
-    "3": "일본",
-    "4": "코젤흑맥주",
-    "5": "코골기",
-    "6": "생맥주",
-    "7": "돼지귀",
-    "8": "호르무즈해협"
-};
-
+// 퍼즐: 각 단어를 한 줄씩 정확한 길이로 배치
 const grid = document.getElementById("grid");
-let inputs = [];
 
-layout.forEach((row, r) => {
-    const div = document.createElement("div");
-    div.className = "row";
+words.forEach((word, index) => {
 
-    row.split("").forEach((cell, c) => {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    word.split("").forEach((char, i) => {
 
         const wrapper = document.createElement("div");
         wrapper.className = "cell";
 
-        if (cell === "#") {
-            const block = document.createElement("input");
-            block.disabled = true;
-            block.className = "black";
-            wrapper.appendChild(block);
-        } else {
-            const input = document.createElement("input");
+        const input = document.createElement("input");
 
-            // ✅ 한글 입력 허용 (maxlength 제거)
-            input.dataset.answer = cell;
-
-            // 숫자 표시
-            if (!wrapper.querySelector(".number")) {
-                const num = document.createElement("div");
-                num.className = "number";
-                num.innerText = cell;
-                wrapper.appendChild(num);
-            }
-
-            inputs.push(input);
-            wrapper.appendChild(input);
+        // 첫 칸에 번호 표시
+        if (i === 0) {
+            const num = document.createElement("div");
+            num.className = "number";
+            num.innerText = index + 1;
+            wrapper.appendChild(num);
         }
 
-        div.appendChild(wrapper);
+        wrapper.appendChild(input);
+        row.appendChild(wrapper);
     });
 
-    grid.appendChild(div);
+    grid.appendChild(row);
 });
 
 // 실패 멘트
 const failMessages = [
 "😏 사랑이 부족한 것 같은데...?",
-"🤨?",
+"🤨 곧 8년이라궁?",
 "💔 다시 생각해보자...",
 "😈 힌트: 나를 더 사랑해"
 ];
 
 function check() {
-    let allText = inputs.map(i => i.value).join("");
 
-    if (
-        allText.includes("호두") &&
-        allText.includes("일본") &&
-        allText.includes("코골기") &&
-        allText.includes("생맥주")
-    ) {
-        document.getElementById("result").innerHTML =
-        "🎉 하하! 대단하군, 역시 사랑꾼인가..💖<br><br>사랑꾼씨, 티비 옆 박스를 찾아보게나";
-    } else {
-        const msg = failMessages[Math.floor(Math.random() * failMessages.length)];
-        document.getElementById("result").innerHTML = msg;
-    }
-}
-</script>
+    const rows = document.querySelectorAll(".row");
+    let correct = true;
 
-</body>
-</html>
+    rows.forEach((row, i) => {
+        const inputs = row.querySelectorAll("input");
+        let word = "";
+
+        inputs.forEach(input => word += input.value);
+
+        if (word !== words[i]) {
+            correct =
