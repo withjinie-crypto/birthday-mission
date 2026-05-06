@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>생일 미션 1 - 십자 퍼즐</title>
+
+<style>
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #fff0f6;
+}
+.grid {
+    display: inline-block;
+    margin-top: 20px;
+}
+.row {
+    display: flex;
+}
+input {
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    font-size: 16px;
+    margin: 1px;
+}
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎂 생일 미션 1</h2>
+<p>십자 퍼즐을 완성하시오 💖</p>
+
+<div class="grid" id="grid"></div>
+
+<br>
+<button onclick="check()">정답 확인</button>
+
+<p id="result"></p>
+
+<script>
+
+const answers = [
+    "이천십구년일월오일",
+    "호두",
+    "일본",
+    "체코",
+    "코젤흑맥주",
+    "코골기",
+    "생맥주",
+    "돼지귀",
+    "호르무즈해협",
+    "이천이십년십일월십사일"
+];
+
+const failMessages = [
+    "😏 사랑이 부족한 것 같은데...?",
+    "🤨 8년이나 만났는데 이걸 틀린다고?",
+    "😈 힌트: 나를 더 사랑해봐",
+    "🙄 다시 생각해보는게 좋겠군",
+    "💔 이건 좀 실망인데…?"
+];
+
+const grid = document.getElementById("grid");
+
+answers.forEach((word) => {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    for (let i = 0; i < word.length; i++) {
+        const input = document.createElement("input");
+        input.maxLength = 1;
+
+        input.oninput = function() {
+            if (this.value.length === 1) {
+                const next = this.nextElementSibling;
+                if (next) next.focus();
+            }
+        };
+
+        row.appendChild(input);
+    }
+
+    grid.appendChild(row);
+});
+
+function check() {
+    const rows = document.querySelectorAll(".row");
+    let correct = true;
+
+    rows.forEach((row, i) => {
+        const inputs = row.querySelectorAll("input");
+        let word = "";
+
+        inputs.forEach(input => word += input.value);
+
+        if (word !== answers[i]) {
+            correct = false;
+        }
+    });
+
+    if (correct) {
+        document.getElementById("result").innerHTML =
+        "🎉 하하! 대단하군, 역시 사랑꾼인가..💖 <br><br> 사랑꾼씨, 티비 옆 박스를 찾아보게나";
+    } else {
+        const msg = failMessages[Math.floor(Math.random() * failMessages.length)];
+        document.getElementById("result").innerHTML = msg;
+    }
+}
+
+</script>
+
+</body>
+</html>
