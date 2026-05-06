@@ -16,23 +16,26 @@ body {
 }
 .row {
     display: flex;
+    justify-content: center;
 }
 input {
-    width: 32px;
-    height: 32px;
+    width: 35px;
+    height: 35px;
     text-align: center;
     font-size: 16px;
-    margin: 1px;
+    margin: 2px;
+}
+.black {
+    background: #ddd;
+}
+.clue {
+    text-align: left;
+    margin: 10px auto;
+    width: 300px;
 }
 button {
     margin-top: 20px;
     padding: 10px 20px;
-    font-size: 16px;
-}
-#result {
-    margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
 }
 </style>
 </head>
@@ -44,81 +47,107 @@ button {
 
 <div class="grid" id="grid"></div>
 
-<br>
-<button onclick="check()">정답 확인</button>
+<div class="clue">
+<b>📌 문제</b><br>
+1. 우리의 1일<br>
+2. 우리의 베이비<br>
+3. 첫 해외여행지<br>
+4. 체코에서 최고 음식<br>
+5. 밤마다 하는 것<br>
+6. 여름 최애<br>
+7. 최근 울면서 먹은 간식<br>
+8. 딩동 특화 문제
+</div>
 
+<button onclick="check()">정답 확인</button>
 <p id="result"></p>
 
 <script>
 
-const answers = [
-    "이천십구년일월오일",
-    "호두",
-    "일본",
-    "체코",
-    "코젤흑맥주",
-    "코골기",
-    "생맥주",
-    "돼지귀",
-    "호르무즈해협",
-    "이천이십년십일월십사일"
+// 퍼즐 구조 (지그재그 + 일부 교차)
+const layout = [
+"#########",
+"#1111111#",
+"###2#####",
+"###2#####",
+"###23333#",
+"###4#####",
+"5555555##",
+"###6#####",
+"###77777#",
+"#########"
 ];
 
-const failMessages = [
-    "😏 사랑이 부족한 것 같은데...?",
-    "🤨 8년이나 만났는데 이걸 틀린다고?",
-    "😈 힌트: 나를 더 사랑해봐",
-    "🙄 다시 생각해보는게 좋겠군",
-    "💔 이건 좀 실망인데…?"
-];
+// 정답
+const answers = {
+    "1": "이천십구년일월오일",
+    "2": "호두",
+    "3": "일본",
+    "4": "코젤흑맥주",
+    "5": "코골기",
+    "6": "생맥주",
+    "7": "돼지귀",
+    "8": "호르무즈해협"
+};
 
 const grid = document.getElementById("grid");
+let inputs = {};
 
-answers.forEach((word) => {
-    const row = document.createElement("div");
-    row.className = "row";
+layout.forEach((row, r) => {
+    const div = document.createElement("div");
+    div.className = "row";
 
-    for (let i = 0; i < word.length; i++) {
-        const input = document.createElement("input");
-        input.maxLength = 1;
+    row.split("").forEach((cell, c) => {
+        if (cell === "#") {
+            const block = document.createElement("input");
+            block.disabled = true;
+            block.className = "black";
+            div.appendChild(block);
+        } else {
+            const input = document.createElement("input");
+            input.maxLength = 1;
 
-        input.oninput = function() {
-            if (this.value.length === 1) {
-                const next = this.nextElementSibling;
-                if (next) next.focus();
-            }
-        };
+            const key = r + "-" + c;
+            inputs[key] = input;
 
-        row.appendChild(input);
-    }
+            input.oninput = function() {
+                if (this.value.length === 1) {
+                    const next = this.nextElementSibling;
+                    if (next && !next.disabled) next.focus();
+                }
+            };
 
-    grid.appendChild(row);
-});
-
-function check() {
-    const rows = document.querySelectorAll(".row");
-    let correct = true;
-
-    rows.forEach((row, i) => {
-        const inputs = row.querySelectorAll("input");
-        let word = "";
-
-        inputs.forEach(input => word += input.value);
-
-        if (word !== answers[i]) {
-            correct = false;
+            div.appendChild(input);
         }
     });
 
-    if (correct) {
+    grid.appendChild(div);
+});
+
+// 실패 멘트
+const failMessages = [
+"😏 사랑이 부족한 것 같은데...?",
+"🤨 7년이라구!",
+"💔 다시 생각해보자...",
+"😈 힌트: 나를 더 사랑해"
+];
+
+function check() {
+    // 간단 검증 (핵심 단어 포함 여부 체크)
+    const text = Object.values(inputs).map(i => i.value).join("");
+
+    if (text.includes("호두") &&
+        text.includes("일본") &&
+        text.includes("코골기") &&
+        text.includes("생맥주")) {
+
         document.getElementById("result").innerHTML =
-        "🎉 하하! 대단하군, 역시 사랑꾼인가..💖 <br><br> 사랑꾼씨, 티비 옆 박스를 찾아보게나";
+        "🎉 하하! 대단하군, 역시 사랑꾼인가..💖<br><br>사랑꾼씨, 티비 옆 박스를 찾아보게나";
     } else {
         const msg = failMessages[Math.floor(Math.random() * failMessages.length)];
         document.getElementById("result").innerHTML = msg;
     }
 }
-
 </script>
 
 </body>
