@@ -10,32 +10,46 @@ body {
     text-align: center;
     background: #fff0f6;
 }
+
 .grid {
     display: inline-block;
     margin-top: 20px;
 }
+
 .row {
     display: flex;
     justify-content: center;
 }
+
+.cell {
+    position: relative;
+}
+
 input {
-    width: 35px;
-    height: 35px;
+    width: 38px;
+    height: 38px;
     text-align: center;
-    font-size: 16px;
+    font-size: 18px;
     margin: 2px;
 }
+
 .black {
-    background: #ddd;
+    background: #ccc;
 }
+
+.number {
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    font-size: 10px;
+    color: #555;
+}
+
 .clue {
     text-align: left;
-    margin: 10px auto;
-    width: 300px;
-}
-button {
-    margin-top: 20px;
-    padding: 10px 20px;
+    width: 320px;
+    margin: 20px auto;
+    font-size: 14px;
 }
 </style>
 </head>
@@ -45,18 +59,18 @@ button {
 <h2>🎂 생일 미션 1</h2>
 <p>십자 퍼즐을 완성하시오 💖</p>
 
-<div class="grid" id="grid"></div>
+<div id="grid" class="grid"></div>
 
 <div class="clue">
-<b>📌 문제</b><br>
-1. 우리의 1일<br>
-2. 우리의 베이비<br>
-3. 첫 해외여행지<br>
-4. 체코에서 최고 음식<br>
-5. 밤마다 하는 것<br>
-6. 여름 최애<br>
-7. 최근 울면서 먹은 간식<br>
-8. 딩동 특화 문제
+<b>📌 가로/세로 문제</b><br>
+① 우리의 1일<br>
+② 우리의 베이비<br>
+③ 첫 해외여행지<br>
+④ 체코에서 딩동이의 최고 음식<br>
+⑤ 내가 밤마다 하는 것<br>
+⑥ 딩동의 여름 최애<br>
+⑦ 최근 애기가 울면서 먹은 간식<br>
+⑧ 딩동 특화 문제-해협입니다
 </div>
 
 <button onclick="check()">정답 확인</button>
@@ -64,7 +78,7 @@ button {
 
 <script>
 
-// 퍼즐 구조 (지그재그 + 일부 교차)
+// 퍼즐 구조 (#은 빈칸)
 const layout = [
 "#########",
 "#1111111#",
@@ -91,34 +105,41 @@ const answers = {
 };
 
 const grid = document.getElementById("grid");
-let inputs = {};
+let inputs = [];
 
 layout.forEach((row, r) => {
     const div = document.createElement("div");
     div.className = "row";
 
     row.split("").forEach((cell, c) => {
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "cell";
+
         if (cell === "#") {
             const block = document.createElement("input");
             block.disabled = true;
             block.className = "black";
-            div.appendChild(block);
+            wrapper.appendChild(block);
         } else {
             const input = document.createElement("input");
-            input.maxLength = 1;
 
-            const key = r + "-" + c;
-            inputs[key] = input;
+            // ✅ 한글 입력 허용 (maxlength 제거)
+            input.dataset.answer = cell;
 
-            input.oninput = function() {
-                if (this.value.length === 1) {
-                    const next = this.nextElementSibling;
-                    if (next && !next.disabled) next.focus();
-                }
-            };
+            // 숫자 표시
+            if (!wrapper.querySelector(".number")) {
+                const num = document.createElement("div");
+                num.className = "number";
+                num.innerText = cell;
+                wrapper.appendChild(num);
+            }
 
-            div.appendChild(input);
+            inputs.push(input);
+            wrapper.appendChild(input);
         }
+
+        div.appendChild(wrapper);
     });
 
     grid.appendChild(div);
@@ -127,20 +148,20 @@ layout.forEach((row, r) => {
 // 실패 멘트
 const failMessages = [
 "😏 사랑이 부족한 것 같은데...?",
-"🤨 7년이라구!",
+"🤨?",
 "💔 다시 생각해보자...",
 "😈 힌트: 나를 더 사랑해"
 ];
 
 function check() {
-    // 간단 검증 (핵심 단어 포함 여부 체크)
-    const text = Object.values(inputs).map(i => i.value).join("");
+    let allText = inputs.map(i => i.value).join("");
 
-    if (text.includes("호두") &&
-        text.includes("일본") &&
-        text.includes("코골기") &&
-        text.includes("생맥주")) {
-
+    if (
+        allText.includes("호두") &&
+        allText.includes("일본") &&
+        allText.includes("코골기") &&
+        allText.includes("생맥주")
+    ) {
         document.getElementById("result").innerHTML =
         "🎉 하하! 대단하군, 역시 사랑꾼인가..💖<br><br>사랑꾼씨, 티비 옆 박스를 찾아보게나";
     } else {
